@@ -87,7 +87,7 @@ class Translator {
             return word;
         }
 
-        let synonym = await this.getSynonym(word);
+        let synonym = await this.getSynonym(word.toLowerCase());
         console.log('selected synonym is ' + synonym);
         synonym = this.matchCasing(synonym, word);
 
@@ -111,8 +111,8 @@ class Translator {
             return this.synonymCache[word];
         }
 
-        const url = 'https://words.bighugelabs.com/api/2/' + apiKey + '/' + word + '/json';
-        const errorMsg = 'There was an error communicating with the synonym API. You may have exceeded the 500 words/day limit. ';
+        const url = 'thesaurus-api.php?word=' + word;
+        const defaultErrorMsg = 'There was an error communicating with the synonym API. ';
 
         try {
             console.log('Fetching synonyms for ' + word);
@@ -122,28 +122,18 @@ class Translator {
                 return [];
             }
             if (response.status === 500) {
-                alert(errorMsg + response.statusText);
+                const errorMsg = await response.text();
+                alert(defaultErrorMsg + errorMsg);
                 this.apiAvailable = false;
+                return [];
             }
-            const responseJson = await response.json();
-            console.log(responseJson);
-            let synonyms = [];
-            const wordTypes = ['noun', 'verb', 'adjective', 'adverb'];
-            wordTypes.forEach(wordType => {
-                if (responseJson.hasOwnProperty(wordType)) {
-                    synonyms = [
-                        ...synonyms,
-                        ...(responseJson[wordType]?.syn ?? []),
-                        ...(responseJson[wordType]?.rel ?? []),
-                        ...(responseJson[wordType]?.sim ?? []),
-                    ];
-                }
-            });
+            const synonyms = await response.json();
+            console.log(synonyms);
             this.synonymCache[word] = synonyms;
 
             return synonyms;
         } catch (err) {
-            alert(errorMsg);
+            alert(defaultErrorMsg);
             console.log(err);
             this.apiAvailable = false;
         }
@@ -167,6 +157,9 @@ class Translator {
      * @returns {string|*}
      */
     matchCasing(synonym, originalWord) {
+        if (!synonym) {
+            return synonym;
+        }
         if (originalWord === originalWord.toUpperCase()) {
             return synonym.toUpperCase();
         }

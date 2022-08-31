@@ -17,19 +17,21 @@ class API
     /**
      * @param string $word
      * @return array
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws NotFoundException
-     * @throws UsageExceededException
+     * @throws BigHugeThesaurusClient
      * @throws InactiveKeyException
      * @throws MissingWordsException
+     * @throws NotFoundException
      * @throws NotWhitelistedException
+     * @throws UsageExceededException
      */
     public static function fetch($word)
     {
         if (trim($word) == '') {
             return [];
         }
-        $apiKey = require('../config/api-key.php');
+
+        $apiKeyPath = dirname(__FILE__, 2) . '/config/api-key.php';
+        $apiKey = require $apiKeyPath;
         $client = new BigHugeThesaurusClient($apiKey);
         $response = $client->lookup($word);
         $options = array_merge(
@@ -37,6 +39,7 @@ class API
             $response->getSimilarTerms(),
             $response->getRelatedTerms()
         );
+
         return array_unique($options);
     }
 }
