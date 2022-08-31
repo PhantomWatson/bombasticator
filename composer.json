@@ -1,0 +1,20 @@
+{
+    "name": "phantomwatson/bombasticator",
+    "description": "A translator from normal human speech to confusingly bombastic speech",
+    "type": "project",
+    "require": {
+        "mettle/big-huge-thesaurus-client": "^1.2"
+    },
+    "license": "UNLICENSED",
+    "autoload": {
+        "psr-4": {
+            "PhantomWatson\\Bombasticator\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Graham Watson",
+            "email": "graham@phantomwatson.com"
+        }
+    ]
+}
