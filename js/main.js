@@ -10,10 +10,8 @@ class Translator {
         this.form.addEventListener('submit', async (event) => {
             event.preventDefault();
             if (this.apiAvailable) {
-                console.log('disabling', new Date());
                 this.button.disabled = true;
                 await this.translate();
-                console.log('enabling', new Date());
                 this.button.disabled = false;
             }
         });
@@ -31,10 +29,8 @@ class Translator {
         for (const line of inputLines) {
             const translatedLine = await this.translateLine(line);
             outputLines.push(translatedLine);
-            console.log('outputLines is now', outputLines);
         }
         this.output.value = outputLines.join("\n");
-        console.log('output value is now', this.output.value);
     }
 
     /*
@@ -68,8 +64,6 @@ class Translator {
             return b.length - a.length;
         });
 
-        console.log(synonyms);
-
         const randomKey = this.randomNumber(0, Math.min(synonyms.length, 10));
 
         return synonyms[randomKey];
@@ -88,7 +82,6 @@ class Translator {
         }
 
         let synonym = await this.getSynonym(word.toLowerCase());
-        console.log('selected synonym is ' + synonym);
         synonym = this.matchCasing(synonym, word);
 
         return synonym ?? word;
@@ -100,14 +93,12 @@ class Translator {
         for (const word of inputWords) {
             const synonym = await this.translateWord(word);
             outputWords.push(synonym);
-            console.log('outputWords is now', outputWords);
         }
         return outputWords.join('');
     }
 
     async getSynonymOptions(word) {
         if (this.synonymCache.hasOwnProperty(word)) {
-            console.log('Pulling results from ' + word + ' from cache');
             return this.synonymCache[word];
         }
 
@@ -115,7 +106,6 @@ class Translator {
         const defaultErrorMsg = 'There was an error communicating with the synonym API. ';
 
         try {
-            console.log('Fetching synonyms for ' + word);
             const response = await fetch(url);
             if (response.status === 404) {
                 this.synonymCache[word] = [];
@@ -128,25 +118,18 @@ class Translator {
                 return [];
             }
             const synonyms = await response.json();
-            console.log(synonyms);
             this.synonymCache[word] = synonyms;
 
             return synonyms;
         } catch (err) {
             alert(defaultErrorMsg);
-            console.log(err);
             this.apiAvailable = false;
         }
         return [];
     }
 
     isCommonWord(word) {
-        const isCommonWord = this.getCommonWords().includes(word.toLowerCase());
-        if (isCommonWord) {
-            console.log(word + ' is a common word');
-        }
-
-        return isCommonWord;
+        return this.getCommonWords().includes(word.toLowerCase());
     }
 
     /**
